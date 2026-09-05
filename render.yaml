@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: babusar-cloudburst-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 180 app:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: API_KEY
+        generateValue: true
