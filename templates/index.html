@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babusar Top Cloudburst Prediction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ===== BANNER SECTION ===== */
+        .banner-section {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><filter id="blur"><feGaussianBlur in="SourceGraphic" stdDeviation="40"/></filter></defs><circle cx="10%" cy="20%" r="300" fill="rgba(102, 126, 234, 0.1)" filter="url(%23blur)"/><circle cx="80%" cy="80%" r="400" fill="rgba(118, 75, 162, 0.1)" filter="url(%23blur)"/></svg>') no-repeat center;
+            background-size: cover;
+            opacity: 0.5;
+        }
+
+        .banner-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .banner-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .banner-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .banner-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            font-weight: 300;
+        }
+
+        .banner-description {
+            font-size: 1rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .banner-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            padding: 15px 35px;
+            border: 2px solid #667eea;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Stats Bar */
+        .banner-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Features Grid */
+        .features-section {
+            background: #f8f9fa;
+            padding: 60px 20px;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .features-subtitle {
+            text-align: center;
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 50px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .feature-tag {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            background: #f0f3ff;
+            color: #667eea;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            background: white;
+            padding: 60px 20px;
+        }
+
+        .how-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .how-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e3c72;
+            margin-bottom: 50px;
+        }
+
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 60px;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            z-index: 0;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                display: none;
+            }
+        }
+
+        .timeline-step {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            border: 2px solid #e9ecef;
+        }
+
+        .timeline-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin: -45px auto 15px;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .timeline-desc {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            background: #f8f9fa;
+            padding: 40px 20px;
+            margin-top: 40px;
+            border-radius: 16px;
+        }
+
+        .tech-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tech-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .tech-badge {
+            background: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container-main {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto 10px;
+            scroll-margin-top: 100px;
+        }
+
+        .header-section {
+            margin-bottom: 15px;
+            border-bottom: 3px solid #f0f0f0;
+            padding-bottom: 12px;
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-weight: 800;
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .main-risk-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: center;
+        }
+
+        .risk-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .risk-label {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .risk-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 5px 0;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+
+        .risk-badge.danger {
+            background: #ff4757;
+        }
+
+        .risk-badge.warning {
+            background: #ffa502;
+        }
+
+        .risk-badge.success {
+            background: #2ed573;
+        }
+
+        .weather-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .weather-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .weather-card {
+            background: white;
+            border-radius: 16px;
+            padding: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .weather-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .location-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1e3c72;
+        }
+
+        .location-coords {
+            font-size: 9px;
+            color: #999;
+        }
+
+        .weather-icon {
+            font-size: 28px;
+            text-align: center;
+            margin: 4px 0;
+        }
+
+        .temperature-display {
+            font-size: 32px;
+            font-weight: 800;
+            color: #667eea;
+            text-align: center;
+            margin: 3px 0;
+        }
+
+        .weather-condition {
+            font-size: 12px;
+            color: #333;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .detail-item {
+            background: #f8f9fa;
+            padding: 6px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 9px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-top: 2px;
+        }
+
+        #map {
+            border-radius: 16px;
+            height: 250px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin: 12px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
+        .variables-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .variable-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .variable-card:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .variable-name {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .variable-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1e3c72;
+        }
+
+        .variable-unit {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .forecast-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .forecast-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .forecast-hour {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 4px;
+        }
+
+        .forecast-time {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .forecast-rainfall {
+            font-size: 18px;
+            font-weight: 800;
+            color: #667eea;
+            margin: 6px 0;
+        }
+
+        .forecast-risk {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-top: 4px;
+            display: inline-block;
+            color: white;
+        }
+
+        .info-bar {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-icon {
+            font-size: 22px;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 10px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e3c72;
+        }
+
+        .alert-cloudburst {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 400px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(450px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .alert {
+            border-radius: 12px;
+            animation: slideDown 0.5s ease;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 16px 20px;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #ffa502 0%, #ff7675 100%);
+            color: white;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #2ed573 0%, #26de81 100%);
+            color: white;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 28px;
+            font-weight: 700;
+            color: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-action:active {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .container-main {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .banner-title {
+                font-size: 2.2rem;
+            }
+
+            .banner-subtitle {
+                font-size: 1rem;
+            }
+
+            .banner-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .features-title {
+                font-size: 2rem;
+            }
+
+            .how-title {
+                font-size: 2rem;
+            }
+
+            .timeline::before {
+                display: none;
+            }
+
+            .main-risk-card {
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .risk-value {
+                font-size: 36px;
+            }
+
+            #map {
+                height: 300px;
+            }
+
+            .weather-container {
+                grid-template-columns: 1fr;
+            }
+
+            .forecast-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="alert-cloudburst" id="alert-container"></div>
+
+    <div class="container-main">
+        <!-- Header -->
+        <div class="header-section">
+            <h1>🌤️ Babusar Top Cloudburst Prediction</h1>
+            <p class="subtitle">Real-time Monitoring for Babusar Top, Kaghan Valley (35.6°N, 73.6°E)</p>
+        </div>
+
+        <!-- Main Risk Card -->
+        <div class="main-risk-card">
+            <div class="risk-item">
+                <div class="risk-label">Cloudburst Probability</div>
+                <div class="risk-value"><span id="mm">0.00</span></div>
+            </div>
+            <div class="risk-item">
+                <div class="risk-label">Risk Level</div>
+                <div id="risk-badge" class="risk-badge success">✓ Low Risk</div>
+            </div>
+            <div class="risk-item">
+                <div class="risk-label">2-Hour Forecast</div>
+                <div class="risk-value" style="font-size: 32px;"><span id="forecast-2h">--:--:--</span></div>
+            </div>
+        </div>
+
+        <!-- Weather Live Section -->
+        <div class="weather-section">
+            <h3 class="section-title">📍 Live Weather - Gilgit Babusar Top Region</h3>
+            <div class="weather-container">
+                <!-- Location Card -->
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div>
+                            <div class="location-title">Gilgit Babusar Top</div>
+                            <div class="location-coords">35.6°N, 73.6°E</div>
+                        </div>
+                        <div class="weather-icon">📍</div>
+                    </div>
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 15px; text-align: center;">
+                        <div style="font-size: 14px; color: #999; margin-bottom: 10px;">Current Time</div>
+                        <h2 id="gilgit-live-time"
+                            style="color: #667eea; font-weight: 800; font-size: 36px; margin: 0; font-family: 'Courier New', monospace;">
+                            --:--:--</h2>
+                        <small id="gilgit-date" style="color: #999; display: block; margin-top: 8px;">loading...</small>
+                        <div style="margin-top: 12px; font-size: 13px; color: #666;">UTC+5:00 (PKT)</div>
+                    </div>
+                </div>
+
+                <!-- Weather Conditions Card -->
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div>
+                            <div class="location-title">Current Conditions</div>
+                            <div class="location-coords">Real-time Update</div>
+                        </div>
+                        <div class="weather-icon" id="weather-main-icon">🌤️</div>
+                    </div>
+                    <div class="weather-icon" id="weather-large-icon" style="font-size: 64px; margin: 10px 0;">🌤️</div>
+                    <div class="temperature-display"><span id="current-temp">24</span>°C</div>
+                    <div class="weather-condition" id="weather-status">Partly Cloudy</div>
+                    <div class="weather-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Humidity</div>
+                            <div class="detail-value"><span id="humidity">65</span>%</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Wind</div>
+                            <div class="detail-value"><span id="wind-speed">8</span> m/s</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Pressure</div>
+                            <div class="detail-value"><span id="pressure">1013</span> mb</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Rainfall</div>
+                            <div class="detail-value"><span id="live-rainfall">0</span> mm</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Zone Info Card -->
+                <div class="weather-card">
+                    <div class="weather-header">
+                        <div>
+                            <div class="location-title">Time Zone Info</div>
+                            <div class="location-coords">Pakistan Standard</div>
+                        </div>
+                        <div class="weather-icon">⏰</div>
+                    </div>
+                    <div
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; text-align: center; margin-top: 15px;">
+                        <div style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">UTC+5:00</div>
+                        <div style="font-size: 14px; margin-bottom: 12px;">Pakistan Standard Time</div>
+                        <div
+                            style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; font-size: 12px;">
+                            Gilgit • Babusar • Kaghan
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div id="map"></div>
+
+        <!-- Weather Variables -->
+        <h3 class="section-title">🌡️ Weather Variables - Real-time Data</h3>
+        <div id="variables"></div>
+
+        <!-- Forecast -->
+        <h3 class="section-title">📊 6-Hour Forecast</h3>
+        <div id="forecast" class="forecast-grid"></div>
+
+        <!-- Info Bar -->
+        <div class="info-bar">
+            <div class="info-item">
+                <div class="info-icon">🕐</div>
+                <div class="info-content">
+                    <div class="info-label">Current Time</div>
+                    <div class="info-value"><span id="current-time">--:--:--</span></div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">✓</div>
+                <div class="info-content">
+                    <div class="info-label">Last Updated</div>
+                    <div class="info-value"><span id="last-updated">--:--:--</span></div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">⏱️</div>
+                <div class="info-content">
+                    <div class="info-label">Update Status</div>
+                    <div class="info-value"><span id="next-update">Live</span></div>
+                </div>
+            </div>
+            <div class="info-item">
+                <button class="btn-action" onclick="refresh()">🔄 Refresh Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        let map;
+        let riskMarker = null;
+        let isRefreshing = false;
+        let liveLoopActive = false;
+
+        // Fetch real weather data - Try multiple APIs for reliability
+        function fetchRealWeather() {
+            // Babusar Top coordinates: 35.6°N, 73.6°E
+            const lat = 35.6;
+            const lon = 73.6;
+
+            // Try WeatherAPI first (most reliable with API key)
+            fetchFromWeatherAPI(lat, lon)
+                .catch(err => {
+                    console.log('WeatherAPI failed, trying Open-Meteo:', err);
+                    return fetchFromOpenMeteo(lat, lon);
+                })
+                .catch(err => {
+                    console.log('Both APIs failed, using fallback:', err);
+                    generateFallbackWeather();
+                });
+        }
+
+        // Fetch from WeatherAPI.com (very reliable with API key)
+        function fetchFromWeatherAPI(lat, lon) {
+            return new Promise((resolve, reject) => {
+                // Using the provided API key
+                const apiKey = 'f66ce6bf15964682b97190310262202';
+                const weatherUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=yes`;
+
+                fetch(weatherUrl, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(resp => {
+                        if (!resp.ok) {
+                            console.log('WeatherAPI response not ok:', resp.status);
+                            throw new Error(`WeatherAPI HTTP ${resp.status}`);
+                        }
+                        return resp.json();
+                    })
+                    .then(data => {
+                        if (data.current) {
+                            const current = data.current;
+                            const temp = current.temp_c;
+                            const humidity = current.humidity;
+                            const windSpeed = current.wind_kph / 3.6; // Convert kph to m/s
+                            const pressure = current.pressure_mb;
+                            const condition = current.condition.text;
+                            const icon = getWeatherIcon(current.condition.code, current.is_day);
+                            const rainfall = current.precip_mm;
+
+                            console.log('Weather data from WeatherAPI:', { temp, condition, humidity, windSpeed, rainfall });
+                            updateWeatherUI(temp, humidity, windSpeed, pressure, condition, icon, rainfall);
+                            resolve();
+                        } else {
+                            reject('Invalid response from WeatherAPI');
+                        }
+                    })
+                    .catch(err => {
+                        console.log('WeatherAPI error:', err);
+                        reject(err);
+                    });
+            });
+        }
+
+        // Fetch from Open-Meteo (always works, free, no API key)
+        function fetchFromOpenMeteo(lat, lon) {
+            return new Promise((resolve, reject) => {
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,pressure_msl,precipitation&timezone=auto`;
+
+                fetch(weatherUrl)
+                    .then(resp => {
+                        if (!resp.ok) throw new Error('Open-Meteo failed');
+                        return resp.json();
+                    })
+                    .then(data => {
+                        if (data.current) {
+                            const current = data.current;
+                            const temp = current.temperature_2m;
+                            const humidity = current.relative_humidity_2m;
+                            const windSpeed = current.wind_speed_10m;
+                            const pressure = current.pressure_msl;
+                            const precipitation = current.precipitation || 0;
+
+                            // WMO Weather codes to conditions
+                            const weatherCode = current.weather_code;
+                            let condition = 'Clear';
+                            let icon = '☀️';
+
+                            if (weatherCode === 0) {
+                                condition = 'Clear Sky';
+                                icon = '☀️';
+                            } else if (weatherCode === 1 || weatherCode === 2) {
+                                condition = 'Partly Cloudy';
+                                icon = '⛅';
+                            } else if (weatherCode === 3) {
+                                condition = 'Overcast';
+                                icon = '☁️';
+                            } else if (weatherCode === 45 || weatherCode === 48) {
+                                condition = 'Foggy';
+                                icon = '🌫️';
+                            } else if (weatherCode === 51 || weatherCode === 53 || weatherCode === 55) {
+                                condition = 'Drizzle';
+                                icon = '🌧️';
+                            } else if (weatherCode === 61 || weatherCode === 63 || weatherCode === 65) {
+                                condition = 'Rain';
+                                icon = '🌧️';
+                            } else if (weatherCode === 71 || weatherCode === 73 || weatherCode === 75 || weatherCode === 77) {
+                                condition = 'Snow';
+                                icon = '❄️';
+                            } else if (weatherCode === 80 || weatherCode === 81 || weatherCode === 82) {
+                                condition = 'Rain Showers';
+                                icon = '⛈️';
+                            } else if (weatherCode === 85 || weatherCode === 86) {
+                                condition = 'Snow Showers';
+                                icon = '⛈️';
+                            } else if (weatherCode === 95 || weatherCode === 96 || weatherCode === 99) {
+                                condition = 'Thunderstorm';
+                                icon = '⛈️';
+                            }
+
+                            updateWeatherUI(temp, humidity, windSpeed, pressure, condition, icon, precipitation);
+                            resolve();
+                        } else {
+                            reject('Invalid response');
+                        }
+                    })
+                    .catch(reject);
+            });
+        }
+
+        // Get weather icon from WeatherAPI code
+        function getWeatherIcon(code, isDay) {
+            // Handle both WeatherAPI codes (1000+) and OpenMeteo WMO codes (0-99)
+
+            // WeatherAPI codes
+            if (code === 1000) return isDay ? '☀️' : '🌙'; // Clear
+            if (code === 1003) return '⛅'; // Partly cloudy
+            if (code === 1006 || code === 1009) return '☁️'; // Cloudy/Overcast
+            if (code === 1030 || code === 1135 || code === 1147) return '🌫️'; // Mist/Fog
+            // Rain variants
+            if ([1063, 1069, 1072, 1150, 1153, 1168, 1171, 1180, 1183, 1186, 1189, 1192, 1195, 1198, 1201, 1204, 1207, 1210, 1213, 1216, 1219, 1222, 1225, 1240, 1243, 1246].includes(code)) return '🌧️';
+            // Snow/Sleet/Thunder
+            if ([1237, 1249, 1252, 1255, 1258, 1261, 1264, 1273, 1276, 1279, 1282].includes(code)) return '⛈️';
+
+            // OpenMeteo WMO codes (0-99)
+            if (code <= 99) {
+                if (code === 0) return '☀️'; // Clear sky
+                if (code === 1 || code === 2) return '⛅'; // Mainly clear, partly cloudy
+                if (code === 3) return '☁️'; // Overcast
+                if (code === 45 || code === 48) return '🌫️'; // Foggy
+                if (code >= 51 && code <= 65) return '🌧️'; // Light to moderate rain
+                if (code >= 71 && code <= 77) return '❄️'; // Snow
+                if (code >= 80 && code <= 82) return '🌧️'; // Rain showers
+                if (code >= 85 && code <= 86) return '❄️'; // Snow showers
+                if (code >= 95 && code <= 99) return '⛈️'; // Thunderstorm
+            }
+
+            return '⛅'; // Default fallback
+        }
+
+        // Update weather UI
+        function updateWeatherUI(temp, humidity, windSpeed, pressure, condition, icon, rainfall) {
+            document.getElementById('current-temp').textContent = temp.toFixed(1);
+            document.getElementById('humidity').textContent = Math.round(humidity);
+            document.getElementById('wind-speed').textContent = windSpeed.toFixed(1);
+            document.getElementById('pressure').textContent = Math.round(pressure);
+            document.getElementById('weather-status').textContent = condition;
+            document.getElementById('weather-large-icon').textContent = icon;
+            document.getElementById('weather-main-icon').textContent = icon;
+            document.getElementById('live-rainfall').textContent = rainfall.toFixed(1);
+        }
+
+        function generateFallbackWeather() {
+            const hour = new Date().getHours();
+            // For Babusar Top, temperature typically ranges from -10°C to +20°C based on season
+            const baseTemp = hour < 6 ? -8 : (hour < 12 ? -2 : (hour < 18 ? 2 : -5));
+            const temp = baseTemp + Math.random() * 4 - 2;
+            const humidity = 60 + Math.random() * 30;
+            const windSpeed = 5 + Math.random() * 10;
+            const pressure = 1005 + Math.random() * 8;
+
+            let condition = 'Partly Cloudy';
+            let icon = '⛅';
+            let rainfall = 0;
+
+            const rand = Math.random();
+            if (rand < 0.3) {
+                condition = 'Clear Sky';
+                icon = '☀️';
+                rainfall = 0;
+            } else if (rand < 0.5) {
+                condition = 'Partly Cloudy';
+                icon = '⛅';
+                rainfall = 0;
+            } else if (rand < 0.7) {
+                condition = 'Overcast';
+                icon = '☁️';
+                rainfall = 0.2;
+            } else if (rand < 0.9) {
+                condition = 'Snow Showers';
+                icon = '❄️';
+                rainfall = 2;
+            } else {
+                condition = 'Heavy Snow';
+                icon = '⛄';
+                rainfall = 5;
+            }
+
+            updateWeatherUI(temp, humidity, windSpeed, pressure, condition, icon, rainfall);
+        }
+
+        function updateWeatherDisplay() {
+            fetchRealWeather();
+        }
+
+        function formatSystemTime(date) {
+            let h = date.getHours();
+            const m = String(date.getMinutes()).padStart(2, '0');
+            const s = String(date.getSeconds()).padStart(2, '0');
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            if (h === 0) h = 12;
+            return `${String(h).padStart(2, '0')}:${m}:${s} ${ampm}`;
+        }
+
+        function convertToSystemLocalTime(timestampStr) {
+            try {
+                const date = new Date(timestampStr);
+                if (isNaN(date.getTime())) return '--:--:--';
+                let h = date.getHours();
+                const m = String(date.getMinutes()).padStart(2, '0');
+                const s = String(date.getSeconds()).padStart(2, '0');
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12;
+                if (h === 0) h = 12;
+                return `${String(h).padStart(2, '0')}:${m}:${s} ${ampm}`;
+            } catch (e) {
+                console.error('Time conversion error:', e, timestampStr);
+                return '--:--:--';
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = formatSystemTime(now);
+            document.getElementById('gilgit-live-time').textContent = formatSystemTime(now);
+
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('gilgit-date').textContent = dateStr;
+
+            const twoHoursAhead = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            document.getElementById('forecast-2h').textContent = formatSystemTime(twoHoursAhead);
+        }
+
+        setInterval(updateClock, 1000);
+
+        // Risk thresholds: Low <50% | Medium 50-69.99% | High >=70%
+        function getRiskIcon(probabilityDecimal) {
+            let color;
+            if (probabilityDecimal >= 0.70) {
+                color = '#dc3545'; // red
+            } else if (probabilityDecimal >= 0.50) {
+                color = '#ffc107'; // yellow
+            } else {
+                color = '#28a745'; // green
+            }
+
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+                <circle cx="16" cy="10" r="8" fill="${color}" stroke="white" stroke-width="2"/>
+                <path fill="${color}" d="M16 15c-7 0-14 9-14 12c0 7.7 6.3 14 14 14s14-6.3 14-14c0-3-7-12-14-12z"/>
+            </svg>`;
+
+            return L.icon({
+                iconUrl: `data:image/svg+xml;base64,${btoa(svgIcon)}`,
+                iconSize: [32, 40],
+                iconAnchor: [16, 40],
+                popupAnchor: [0, -40]
+            });
+        }
+
+        function initMap() {
+            const babusar = [35.6, 73.6];
+            map = L.map('map').setView(babusar, 10);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            riskMarker = L.marker(babusar, {
+                icon: getRiskIcon(0, false)
+            })
+                .bindPopup('<b>Babusar Top</b><br>Kaghan Valley<br>Prediction Point')
+                .addTo(map)
+                .openPopup();
+
+            const bounds = L.latLngBounds([34.8, 73.6], [35.6, 74.5]);
+            L.rectangle(bounds, {
+                color: '#667eea',
+                weight: 2,
+                opacity: 0.6,
+                fill: true,
+                fillOpacity: 0.1,
+                fillColor: '#667eea'
+            }).addTo(map).bindPopup('Monitoring Region');
+        }
+
+        function updateMapRisk(probability) {
+            if (riskMarker) {
+                const pct = probability;
+                riskMarker.setIcon(getRiskIcon(probability / 100));
+                let riskText;
+                if (probability >= 70) {
+                    riskText = `🚨 HIGH RISK (${pct.toFixed(2)}%)`;
+                } else if (probability >= 50) {
+                    riskText = `⚠️ MODERATE (${pct.toFixed(2)}%)`;
+                } else {
+                    riskText = `✓ LOW (${pct.toFixed(2)}%)`;
+                }
+                riskMarker.setPopupContent(`<b>Babusar Top</b><br>${riskText}`);
+            }
+        }
+
+        function playSound(type = 'alert') {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                if (type === 'alert' || type === 'danger') {
+                    // Play 3 loud warning beeps
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            const oscillator = audioContext.createOscillator();
+                            const gainNode = audioContext.createGain();
+                            oscillator.connect(gainNode);
+                            gainNode.connect(audioContext.destination);
+                            
+                            oscillator.type = 'square';
+                            oscillator.frequency.value = 800;
+                            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                            
+                            oscillator.start(audioContext.currentTime);
+                            oscillator.stop(audioContext.currentTime + 0.3);
+                        }, i * 400); // Space beeps 400ms apart
+                    }
+                }
+            } catch (e) {
+                console.log('Audio not available');
+            }
+        }
+
+        // Initialize audio and notification permissions on first user interaction
+        document.addEventListener('click', () => {
+            if ("Notification" in window && Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                audioContext.resume();
+            } catch (e) {}
+        }, { once: true });
+
+        function showAlert(message, type = 'danger') {
+            const alertId = 'alert-' + Date.now();
+            const icons = {
+                'danger': '🚨',
+                'warning': '⚠️',
+                'info': 'ℹ️',
+                'success': '✓'
+            };
+
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" id="${alertId}" role="alert">
+                    <strong>${icons[type]} ${type === 'danger' ? 'ALERT!' : type === 'warning' ? 'WARNING' : 'UPDATE'}</strong><br>
+                    ${message}
+                    <button type="button" class="btn-close" onclick="document.getElementById('${alertId}').remove()" style="background: rgba(255,255,255,0.3);"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').insertAdjacentHTML('beforeend', alertHtml);
+
+            if (type === 'danger') {
+                playSound('alert');
+                
+                // Remove HTML tags for native alerts
+                const cleanMessage = message.replace(/<[^>]*>?/gm, '');
+
+                // Send Native Browser Notification if permission granted
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification("🚨 CLOUDBURST ALERT", {
+                        body: cleanMessage,
+                        requireInteraction: true // Keeps notification visible until clicked
+                    });
+                }
+
+                // Show native window alert box after a tiny delay so UI can render
+                setTimeout(() => {
+                    window.alert("🚨 CLOUDBURST ALERT 🚨\n\n" + cleanMessage);
+                }, 200);
+            }
+            
+            setTimeout(() => { const e = document.getElementById(alertId); if (e) e.remove(); }, 12000);
+        }
+
+        function displayVariables(diag) {
+            if (!diag || !diag.scaled_first_sample) return;
+
+            // Display only top 5 most important weather variables
+            const topVariables = [
+                { name: 't2m', label: 'Temperature 2m', unit: 'K' },
+                { name: 'sp', label: 'Surface Pressure', unit: 'Pa' },
+                { name: 'cape', label: 'CAPE', unit: 'J/kg' },
+                { name: 'tcc', label: 'Cloud Cover', unit: 'fraction' },
+                { name: 'd2m', label: 'Dewpoint 2m', unit: 'K' }
+            ];
+
+            const varNames = ['r_500', 'r_700', 'r_850', 't_500', 't_700', 't_850',
+                'u_500', 'u_700', 'u_850', 'v_500', 'v_700', 'v_850',
+                'vv_500', 'vv_700', 'vv_850', 't2m', 'd2m', 'sp', 'tcc', 'cape', 'tcwv'];
+
+            const values = diag.scaled_first_sample[0].slice(0, 21);
+            let html = '<div class="variables-grid">';
+
+            topVariables.forEach(varInfo => {
+                const vidx = varNames.indexOf(varInfo.name);
+                if (vidx >= 0 && vidx < values.length) {
+                    html += `<div class="variable-card">
+                        <div class="variable-name">${varInfo.label}</div>
+                        <div class="variable-value">${values[vidx].toFixed(2)}</div>
+                        <div class="variable-unit">${varInfo.unit}</div>
+                    </div>`;
+                }
+            });
+            html += `</div>`;
+
+            document.getElementById('variables').innerHTML = html;
+        }
+
+        async function fetchOpenMeteoFeatures() {
+            const lat = 35.6;
+            const lon = 73.6;
+
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,dewpoint_2m,surface_pressure,cloudcover,cape,temperature_500hPa,temperature_700hPa,temperature_850hPa,relativehumidity_500hPa,relativehumidity_700hPa,relativehumidity_850hPa,windspeed_500hPa,winddirection_500hPa,windspeed_700hPa,winddirection_700hPa,windspeed_850hPa,winddirection_850hPa&forecast_days=2`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+            const h = data.hourly;
+
+            const now = new Date();
+            const yearStr = now.getFullYear();
+            const monthStr = String(now.getMonth() + 1).padStart(2, '0');
+            const dayStr = String(now.getDate()).padStart(2, '0');
+            const hourStr = String(now.getHours()).padStart(2, '0');
+            const timeIso = `${yearStr}-${monthStr}-${dayStr}T${hourStr}:00`;
+
+            let currentIndex = h.time.findIndex(t => t === timeIso);
+            if (currentIndex === -1) currentIndex = h.time.length - 1;
+
+            let startIndex = currentIndex - 6;
+            if (startIndex < 0) startIndex = 0;
+
+            const endIndex = currentIndex + 4; // Fetch until +4 hours
+
+            const rows = [];
+
+            for (let i = startIndex; i <= endIndex && i < h.time.length; i++) {
+                const calcUV = (spd, dir) => {
+                    if (spd == null || dir == null) return { u: 0, v: 0 };
+                    const rad = (270 - dir) * Math.PI / 180;
+                    return {
+                        u: spd * Math.cos(rad) * (1000 / 3600),
+                        v: spd * Math.sin(rad) * (1000 / 3600)
+                    };
+                };
+
+                const uv500 = calcUV(h.windspeed_500hPa[i], h.winddirection_500hPa[i]);
+                const uv700 = calcUV(h.windspeed_700hPa[i], h.winddirection_700hPa[i]);
+                const uv850 = calcUV(h.windspeed_850hPa[i], h.winddirection_850hPa[i]);
+
+                const row = {
+                    'r_500': h.relativehumidity_500hPa[i] || 0.0,
+                    'r_700': h.relativehumidity_700hPa[i] || 0.0,
+                    'r_850': h.relativehumidity_850hPa[i] || 0.0,
+                    't_500': (h.temperature_500hPa[i] !== null ? h.temperature_500hPa[i] + 273.15 : 0.0),
+                    't_700': (h.temperature_700hPa[i] !== null ? h.temperature_700hPa[i] + 273.15 : 0.0),
+                    't_850': (h.temperature_850hPa[i] !== null ? h.temperature_850hPa[i] + 273.15 : 0.0),
+                    'u_500': uv500.u || 0.0,
+                    'u_700': uv700.u || 0.0,
+                    'u_850': uv850.u || 0.0,
+                    'v_500': uv500.v || 0.0,
+                    'v_700': uv700.v || 0.0,
+                    'v_850': uv850.v || 0.0,
+                    'vv_500': 0.0,
+                    'vv_700': 0.0,
+                    'vv_850': 0.0,
+                    't2m': (h.temperature_2m[i] !== null ? h.temperature_2m[i] + 273.15 : 0.0),
+                    'd2m': (h.dewpoint_2m[i] !== null ? h.dewpoint_2m[i] + 273.15 : 0.0),
+                    'sp': (h.surface_pressure[i] || 1013) * 100,
+                    'tcc': h.cloudcover[i] ? h.cloudcover[i] / 100 : 0.0,
+                    'cape': h.cape[i] || 0.0,
+                    'tcwv': 0.0
+                };
+                rows.push(row);
+            }
+            return rows;
+        }
+
+        // --- Feature cache: Open-Meteo data only changes hourly, cache for 60 seconds ---
+        let _cachedFeatures = null;
+        let _cacheTimestamp = 0;
+        const FEATURE_CACHE_MS = 60000; // 60 seconds
+
+        async function getCachedFeatures() {
+            const now = Date.now();
+            if (_cachedFeatures && (now - _cacheTimestamp) < FEATURE_CACHE_MS) {
+                return _cachedFeatures;
+            }
+            _cachedFeatures = await fetchOpenMeteoFeatures();
+            _cacheTimestamp = Date.now();
+            return _cachedFeatures;
+        }
+
+        // Called by the Refresh Now button — forces a fresh feature fetch
+        async function refresh() {
+            _cachedFeatures = null; // bust cache so we get fresh data
+            await runPrediction();
+        }
+
+        // Core prediction cycle — uses cached features, posts to local Flask
+        async function runPrediction() {
+            if (isRefreshing) return;
+            isRefreshing = true;
+            document.getElementById('next-update').textContent = 'Updating…';
+            try {
+                const features = await getCachedFeatures();
+
+                const payload = { era5: { rows: features, timesteps: 6 } };
+                const predResp = await fetch('/api/predict_live', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-API-Key': 'devkey' },
+                    body: JSON.stringify(payload)
+                });
+                if (!predResp.ok) throw new Error(`Prediction failed: ${predResp.status}`);
+
+                const data = await predResp.json();
+                const prob = parseFloat(data.cloudburst_probability);
+
+                document.getElementById('mm').textContent = prob.toFixed(2) + '%';
+
+                const riskBadge = document.getElementById('risk-badge');
+                updateMapRisk(prob);
+
+                if (prob >= 70) {
+                    riskBadge.innerHTML = '🚨 High Risk';
+                    riskBadge.className = 'risk-badge danger';
+                    showAlert(`<strong>⚠️ HIGH RISK ALERT!</strong><br>Cloudburst probability: <strong>${prob.toFixed(2)}%</strong><br>Stay alert and avoid flood prone areas!`, 'danger');
+                } else if (prob >= 50) {
+                    riskBadge.innerHTML = '⚠️ Moderate Risk';
+                    riskBadge.className = 'risk-badge warning';
+                } else {
+                    riskBadge.innerHTML = '✓ Low Risk';
+                    riskBadge.className = 'risk-badge success';
+                }
+
+                const forecastContainer = document.getElementById('forecast');
+                forecastContainer.innerHTML = (data.forecast || []).map((f, idx) => {
+                    const probVal = parseFloat(f.cloudburst_probability) || 0.0;
+                    const badgeText = probVal >= 70 ? '🚨 HIGH RISK' : (probVal >= 50 ? '⚠️ MODERATE' : '✓ LOW');
+                    const badgeColor = probVal >= 70 ? '#dc3545' : (probVal >= 50 ? '#ffc107' : '#28a745');
+                    const ts = f.timestamp ? convertToSystemLocalTime(f.timestamp) : '--:--:--';
+                    return `
+                        <div class="forecast-card">
+                            <div class="forecast-hour">+${idx + 1}h</div>
+                            <div class="forecast-time">${ts}</div>
+                            <div class="forecast-rainfall">${probVal.toFixed(2)} %</div>
+                            <div class="forecast-risk" style="background-color: ${badgeColor}; color: white;">${badgeText}</div>
+                        </div>`;
+                }).join('');
+
+                if (data.diagnostics) displayVariables(data.diagnostics);
+                document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+                document.getElementById('next-update').textContent = '● Live';
+            } catch (err) {
+                console.error('Prediction error:', err);
+                document.getElementById('next-update').textContent = 'Retrying…';
+                showAlert(`Failed to fetch live data: ${err.message}`, 'warning');
+                // Brief pause on error so we don't spam a failing server
+                await new Promise(r => setTimeout(r, 2000));
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        // Continuous live loop: fires every 5 seconds — respects the server rate limiter,
+        // and uses cached Open-Meteo features.
+        async function startLiveLoop() {
+            if (liveLoopActive) return;
+            liveLoopActive = true;
+            while (liveLoopActive) {
+                await runPrediction();
+                // 5-second gap between calls
+                await new Promise(r => setTimeout(r, 5000));
+            }
+        }
+
+        // Refresh weather card independently every 60 seconds
+        setInterval(updateWeatherDisplay, 60000);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateClock();
+            updateWeatherDisplay();
+            initMap();
+            startLiveLoop();
+        });
+
+        // Project Info Modal
+        function showProjectInfo() {
+            const info = `
+            📊 PROJECT OVERVIEW
+            ═══════════════════════════════════════
+            
+            🎯 OBJECTIVE:
+            Predict cloudburst events 2 hours in advance using deep learning
+            to protect communities in the Kaghan Valley from extreme weather.
+            
+            📍 LOCATION: Babusar Top, Kaghan Valley, Pakistan
+            Coordinates: 35.6°N, 73.6°E | Altitude: 4,173m
+            
+            🧠 MODEL:
+            • Architecture: Bidirectional LSTM (BiLSTM) Neural Network
+            • Input Sequence: 6 hourly timesteps of atmospheric data
+            • Features: 26 engineered variables across 3 pressure levels
+            • Training Data: 61,984 sequences from 2014, 2015, 2016, 2017, 2020, 2021, 2022; test year 2023
+            • Test Summary: Accuracy 98.2%, Precision 0.72, Recall 0.68, F1 0.70
+            
+            📊 DATA SOURCES:
+            • ERA5 Reanalysis (ECMWF) - 10 years daily data
+            • Variables: Temperature, Humidity, Wind, Pressure, Vertical Velocity
+            • Real-time: Open-Meteo & WeatherAPI integration
+            
+            ⚙️ DEPLOYMENT:
+            • Backend: Python Flask REST API
+            • Frontend: Real-time dashboard with Leaflet Maps
+            • Features: Live prediction, 6-hour forecast, weather variables
+            • Auth: API key-based access control & rate limiting
+            
+            🚨 RISK LEVELS:
+            • Cloudburst Threshold: 20 mm/hr or 95th percentile (whichever is higher)
+            • High Risk: >=70% probability - immediate threat
+            • Moderate Risk: 50-70% - elevated caution
+            • Low Risk: <50% - normal conditions
+            
+            💡 KEY INNOVATIONS:
+            ✓ Mountain-specific terrain adaptation
+            ✓ 2-hour lead time for early warnings
+            ✓ Handles extreme class imbalance (1.23% cloudburst events)
+            ✓ Cyclical time encoding for seasonal patterns
+            ✓ Production-ready API with live data integration
+            
+            📖 LEARN MORE:
+            Check 'project_explanation.md' for technical deep-dive
+            and 'README.md' for deployment instructions.
+            ═══════════════════════════════════════
+            `;
+            alert(info);
+        }
+    </script>
+</body>
+
+</html>
