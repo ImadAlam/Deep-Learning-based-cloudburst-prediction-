@@ -1,0 +1,50 @@
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+api_key.txt
+*.secret
+
+# Local runtime data
+*.db
+*.sqlite
+*.sqlite3
+logs/
+
+# Datasets and downloaded source data
+data/
+datasets/
+*.csv
+*.nc
+*.grib
+*.grib2
+*.zip
+
+# Temporary and generated documents
+temp_*
+*_BACKUP_*
+*.docx
+*.pptx
+*.xlsx
+*.pdf
+thesis_diagrams/
+thesis_diagrams_professional/
+thesis_diagrams_v2/
+thesis_diagrams_v3/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/tasks.json
