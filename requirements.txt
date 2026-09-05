@@ -1,0 +1,7 @@
+flask
+tensorflow
+numpy
+scikit-learn==1.6.1
+cdsapi
+xarray
+netCDF4
